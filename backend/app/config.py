@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import Optional, List
 from dotenv import load_dotenv
 import os
 
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     LEMONSQUEEZY_TEAM_VARIANT_ID: str = ""
 
     # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "https://propertypulse.vercel.app"]
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "https://propertypulse.vercel.app"]
 
     # Production URL (will be set in deployment)
     FRONTEND_URL: str = "http://localhost:3000"

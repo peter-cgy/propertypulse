@@ -1,18 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.config import settings
 
 # 创建应用
 app = FastAPI(
-    title=settings.APP_NAME,
-    description="美国房产投资分析API",
+    title="PropertyPulse",
+    description="Real Estate Investment Analysis API",
     version="0.1.0",
 )
 
 # CORS配置
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS + ["*"],  # Allow all in development
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
