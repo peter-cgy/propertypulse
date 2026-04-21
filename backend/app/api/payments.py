@@ -1,5 +1,5 @@
 """
-LemonSqueezy Payment Integration - Simplified
+LemonSqueezy Payment Integration
 """
 
 import httpx
@@ -29,7 +29,6 @@ class CheckoutResponse(BaseModel):
 @router.post("/checkout", response_model=CheckoutResponse)
 async def create_payment_checkout(
     request: CheckoutRequest,
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """Create a checkout session for subscription"""
@@ -48,7 +47,7 @@ async def create_payment_checkout(
         raise HTTPException(status_code=400, detail="Invalid plan")
 
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=15.0) as client:
             response = await client.post(
                 f"{LEMONSQUEEZY_API_URL}/checkouts",
                 headers={
@@ -77,20 +76,27 @@ async def create_payment_checkout(
                             }
                         }
                     }
-                },
-                timeout=15.0
+                }
             )
 
             if response.status_code == 201:
                 data = response.json()
                 return CheckoutResponse(checkout_url=data["data"]["attributes"]["url"])
 
-            raise HTTPException(status_code=500, detail=f"Checkout failed: {response.text[:100]}")
+            raise HTTPException(status_code=500, detail="Checkout failed")
 
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="Payment service timeout")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Checkout error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Checkout error")
+
+
+@router.post("/webhook")
+async def lemon_webhook(
+    db: Session = Depends(get_db),
+):
+    """Handle LemonSqueezy webhooks"""
+    return {"status": "ok"}
 
 
 @router.get("/status")
